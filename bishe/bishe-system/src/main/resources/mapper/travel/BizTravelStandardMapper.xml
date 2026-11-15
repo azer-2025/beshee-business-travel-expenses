@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bishe.system.mapper.travel.BizTravelStandardMapper">
+
+    <resultMap type="com.bishe.system.domain.travel.BizTravelStandard" id="BizTravelStandardResult">
+        <result property="standardId" column="standard_id"/>
+        <result property="regionLevel" column="region_level"/>
+        <result property="jobLevel" column="job_level"/>
+        <result property="trafficLimit" column="traffic_limit"/>
+        <result property="hotelLimit" column="hotel_limit"/>
+        <result property="mealLimit" column="meal_limit"/>
+        <result property="otherLimit" column="other_limit"/>
+        <result property="status" column="status"/>
+        <result property="effectiveStart" column="effective_start"/>
+        <result property="effectiveEnd" column="effective_end"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectBizTravelStandardVo">
+        select standard_id, region_level, job_level, traffic_limit, hotel_limit, meal_limit, other_limit,
+               status, effective_start, effective_end, create_by, create_time, update_by, update_time, remark
+        from biz_travel_standard
+    </sql>
+
+    <select id="selectBizTravelStandardById" parameterType="Long" resultMap="BizTravelStandardResult">
+        <include refid="selectBizTravelStandardVo"/>
+        where standard_id = #{standardId}
+    </select>
+
+    <select id="selectBizTravelStandardList" parameterType="com.bishe.system.domain.travel.BizTravelStandard" resultMap="BizTravelStandardResult">
+        <include refid="selectBizTravelStandardVo"/>
+        <where>
+            <if test="regionLevel != null and regionLevel != ''">and region_level = #{regionLevel}</if>
+            <if test="jobLevel != null and jobLevel != ''">and job_level = #{jobLevel}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+        </where>
+        order by standard_id desc
+    </select>
+
+    <select id="selectMatchedStandard" resultMap="BizTravelStandardResult">
+        <include refid="selectBizTravelStandardVo"/>
+        <where>
+            and region_level = #{regionLevel}
+            and job_level = #{jobLevel}
+            and status = '0'
+            <if test="bizDate != null">
+                and (effective_start is null or effective_start &lt;= #{bizDate})
+                and (effective_end is null or effective_end &gt;= #{bizDate})
+            </if>
+        </where>
+        order by ifnull(effective_start, '1900-01-01') desc, standard_id desc
+        limit 1
+    </select>
+
+    <insert id="insertBizTravelStandard" parameterType="com.bishe.system.domain.travel.BizTravelStandard" useGeneratedKeys="true" keyProperty="standardId">
+        insert into biz_travel_standard
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regionLevel != null">region_level,</if>
+            <if test="jobLevel != null">job_level,</if>
+            <if test="trafficLimit != null">traffic_limit,</if>
+            <if test="hotelLimit != null">hotel_limit,</if>
+            <if test="mealLimit != null">meal_limit,</if>
+            <if test="otherLimit != null">other_limit,</if>
+            <if test="status != null">status,</if>
+            <if test="effectiveStart != null">effective_start,</if>
+            <if test="effectiveEnd != null">effective_end,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time,
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regionLevel != null">#{regionLevel},</if>
+            <if test="jobLevel != null">#{jobLevel},</if>
+            <if test="trafficLimit != null">#{trafficLimit},</if>
+            <if test="hotelLimit != null">#{hotelLimit},</if>
+            <if test="mealLimit != null">#{mealLimit},</if>
+            <if test="otherLimit != null">#{otherLimit},</if>
+            <if test="status != null">#{status},</if>
+            <if test="effectiveStart != null">#{effectiveStart},</if>
+            <if test="effectiveEnd != null">#{effectiveEnd},</if>
+            <if test="createBy != null">#{createBy},</if>
+            sysdate(),
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBizTravelStandard" parameterType="com.bishe.system.domain.travel.BizTravelStandard">
+        update biz_travel_standard
+        <set>
+            <if test="regionLevel != null">region_level = #{regionLevel},</if>
+            <if test="jobLevel != null">job_level = #{jobLevel},</if>
+            <if test="trafficLimit != null">traffic_limit = #{trafficLimit},</if>
+            <if test="hotelLimit != null">hotel_limit = #{hotelLimit},</if>
+            <if test="mealLimit != null">meal_limit = #{mealLimit},</if>
+            <if test="otherLimit != null">other_limit = #{otherLimit},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="effectiveStart != null">effective_start = #{effectiveStart},</if>
+            <if test="effectiveEnd != null">effective_end = #{effectiveEnd},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where standard_id = #{standardId}
+    </update>
+
+    <delete id="deleteBizTravelStandardById" parameterType="Long">
+        delete from biz_travel_standard where standard_id = #{standardId}
+    </delete>
+
+    <delete id="deleteBizTravelStandardByIds" parameterType="Long">
+        delete from biz_travel_standard where standard_id in
+        <foreach item="standardId" collection="array" open="(" separator="," close=")">
+            #{standardId}
+        </foreach>
+    </delete>
+
+</mapper>

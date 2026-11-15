@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bishe.system.mapper.travel.BizApprovalLogMapper">
+
+    <resultMap type="com.bishe.system.domain.travel.BizApprovalLog" id="BizApprovalLogResult">
+        <result property="logId" column="log_id"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="stepName" column="step_name"/>
+        <result property="action" column="action"/>
+        <result property="approverId" column="approver_id"/>
+        <result property="approverName" column="approver_name"/>
+        <result property="approveComment" column="approve_comment"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="selectBizApprovalLogVo">
+        select log_id, biz_type, biz_id, step_name, action, approver_id, approver_name, approve_comment, create_time
+        from biz_approval_log
+    </sql>
+
+    <select id="selectBizApprovalLogList" parameterType="com.bishe.system.domain.travel.BizApprovalLog" resultMap="BizApprovalLogResult">
+        <include refid="selectBizApprovalLogVo"/>
+        <where>
+            <if test="bizType != null and bizType != ''">and biz_type = #{bizType}</if>
+            <if test="bizId != null">and biz_id = #{bizId}</if>
+            <if test="action != null and action != ''">and action = #{action}</if>
+        </where>
+        order by log_id asc
+    </select>
+
+    <insert id="insertBizApprovalLog" parameterType="com.bishe.system.domain.travel.BizApprovalLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into biz_approval_log(biz_type, biz_id, step_name, action, approver_id, approver_name, approve_comment, create_time)
+        values(#{bizType}, #{bizId}, #{stepName}, #{action}, #{approverId}, #{approverName}, #{approveComment}, #{createTime})
+    </insert>
+
+</mapper>

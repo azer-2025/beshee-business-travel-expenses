@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bishe.system.mapper.travel.BizCompanyNewsMapper">
+
+    <resultMap type="com.bishe.system.domain.travel.BizCompanyNews" id="BizCompanyNewsResult">
+        <result property="newsId" column="news_id"/>
+        <result property="newsTitle" column="news_title"/>
+        <result property="newsType" column="news_type"/>
+        <result property="coverImage" column="cover_image"/>
+        <result property="newsContent" column="news_content"/>
+        <result property="publishStatus" column="publish_status"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectBizCompanyNewsVo">
+        select news_id, news_title, news_type, cover_image, news_content,
+               publish_status, publish_time, create_by, create_time, update_by, update_time, remark
+        from biz_company_news
+    </sql>
+
+    <select id="selectBizCompanyNewsById" parameterType="Long" resultMap="BizCompanyNewsResult">
+        <include refid="selectBizCompanyNewsVo"/>
+        where news_id = #{newsId}
+    </select>
+
+    <select id="selectBizCompanyNewsList" parameterType="com.bishe.system.domain.travel.BizCompanyNews" resultMap="BizCompanyNewsResult">
+        <include refid="selectBizCompanyNewsVo"/>
+        <where>
+            <if test="newsTitle != null and newsTitle != ''">and news_title like concat('%', #{newsTitle}, '%')</if>
+            <if test="newsType != null and newsType != ''">and news_type = #{newsType}</if>
+            <if test="publishStatus != null and publishStatus != ''">and publish_status = #{publishStatus}</if>
+        </where>
+        order by publish_time desc, news_id desc
+    </select>
+
+    <select id="selectPublishedBizCompanyNewsList" parameterType="com.bishe.system.domain.travel.BizCompanyNews" resultMap="BizCompanyNewsResult">
+        <include refid="selectBizCompanyNewsVo"/>
+        <where>
+            and publish_status = '0'
+            <if test="newsTitle != null and newsTitle != ''">and news_title like concat('%', #{newsTitle}, '%')</if>
+            <if test="newsType != null and newsType != ''">and news_type = #{newsType}</if>
+        </where>
+        order by publish_time desc, news_id desc
+    </select>
+
+    <insert id="insertBizCompanyNews" parameterType="com.bishe.system.domain.travel.BizCompanyNews" useGeneratedKeys="true" keyProperty="newsId">
+        insert into biz_company_news
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="newsTitle != null">news_title,</if>
+            <if test="newsType != null">news_type,</if>
+            <if test="coverImage != null">cover_image,</if>
+            <if test="newsContent != null">news_content,</if>
+            <if test="publishStatus != null">publish_status,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time,
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="newsTitle != null">#{newsTitle},</if>
+            <if test="newsType != null">#{newsType},</if>
+            <if test="coverImage != null">#{coverImage},</if>
+            <if test="newsContent != null">#{newsContent},</if>
+            <if test="publishStatus != null">#{publishStatus},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            sysdate(),
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBizCompanyNews" parameterType="com.bishe.system.domain.travel.BizCompanyNews">
+        update biz_company_news
+        <set>
+            <if test="newsTitle != null">news_title = #{newsTitle},</if>
+            <if test="newsType != null">news_type = #{newsType},</if>
+            <if test="coverImage != null">cover_image = #{coverImage},</if>
+            <if test="newsContent != null">news_content = #{newsContent},</if>
+            <if test="publishStatus != null">publish_status = #{publishStatus},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        where news_id = #{newsId}
+    </update>
+
+    <delete id="deleteBizCompanyNewsById" parameterType="Long">
+        delete from biz_company_news where news_id = #{newsId}
+    </delete>
+
+    <delete id="deleteBizCompanyNewsByIds" parameterType="Long">
+        delete from biz_company_news where news_id in
+        <foreach item="newsId" collection="array" open="(" separator="," close=")">
+            #{newsId}
+        </foreach>
+    </delete>
+
+</mapper>

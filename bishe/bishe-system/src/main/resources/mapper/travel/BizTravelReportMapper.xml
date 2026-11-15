@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bishe.system.mapper.travel.BizTravelReportMapper">
+
+    <select id="selectOverview" resultType="java.util.Map">
+        select
+            (select count(1) from biz_trip_apply) as applyCount,
+            (select count(1) from biz_reimburse) as reimburseCount,
+            (select count(1) from biz_reimburse where status = '1') as pendingCount,
+            (select ifnull(sum(total_amount), 0) from biz_reimburse where status in ('2','3')) as approvedAmount,
+            (select ifnull(sum(total_amount), 0) from biz_reimburse where status = '3') as paidAmount
+    </select>
+
+    <select id="selectDeptStats" resultType="java.util.Map">
+        select ifnull(dept_name, '未分配部门') as deptName,
+               count(1) as reimburseCount,
+               ifnull(sum(total_amount), 0) as totalAmount
+        from biz_reimburse
+        group by dept_name
+        order by totalAmount desc
+    </select>
+
+    <select id="selectMonthlyStats" resultType="java.util.Map">
+        select date_format(create_time, '%Y-%m') as statMonth,
+               count(1) as reimburseCount,
+               ifnull(sum(total_amount), 0) as totalAmount
+        from biz_reimburse
+        where create_time >= date_sub(curdate(), interval 11 month)
+        group by date_format(create_time, '%Y-%m')
+        order by statMonth
+    </select>
+
+</mapper>
